@@ -47,6 +47,8 @@ AppVmWidget::AppVmWidget(Glib::RefPtr<AppVmModel> model)
     m_revealer.set_transition_duration(RevealerAnimationTimeMs);
     m_revealer.set_reveal_child();
 
+    m_appNameButton.set_halign(Gtk::Align::ALIGN_START);
+
     add(m_appNameButton);
     add(m_revealer);
 

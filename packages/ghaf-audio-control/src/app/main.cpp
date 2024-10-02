@@ -18,11 +18,24 @@ using namespace ghaf::AudioControl;
 namespace
 {
 
-int GtkClient(std::string pulseAudioServerAddress)
+std::vector<std::string> GetAppVmsList(const std::string& appVms)
+{
+    std::vector<std::string> result;
+
+    std::istringstream iss(appVms);
+    std::string buf;
+
+    while (getline(iss, buf, ','))
+        result.push_back(buf);
+
+    return result;
+}
+
+int GtkClient(const std::string& pulseAudioServerAddress, const std::string& appVms)
 {
     auto app = Gtk::Application::create();
 
-    AudioControl audioControl{std::make_unique<Backend::PulseAudio::AudioControlBackend>(std::move(pulseAudioServerAddress))};
+    AudioControl audioControl{std::make_unique<Backend::PulseAudio::AudioControlBackend>(std::move(pulseAudioServerAddress)), GetAppVmsList(appVms)};
 
     Gtk::ApplicationWindow window;
     window.add(audioControl);
@@ -37,12 +50,17 @@ int main(int argc, char** argv)
 {
     Glib::ustring pulseServerAddress;
     Glib::OptionEntry pulseServerOption;
-
     pulseServerOption.set_long_name("pulseaudio_server");
     pulseServerOption.set_description("PulseAudio server address");
 
+    Glib::ustring appVms;
+    Glib::OptionEntry appVmsOption;
+    appVmsOption.set_long_name("app_vms");
+    appVmsOption.set_description("AppVMs list");
+
     Glib::OptionGroup options("Main", "Main");
     options.add_entry(pulseServerOption, pulseServerAddress);
+    options.add_entry(appVmsOption, appVms);
 
     Glib::OptionContext context("Application Options");
     context.set_main_group(options);
@@ -60,5 +78,5 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    return GtkClient(pulseServerAddress);
+    return GtkClient(pulseServerAddress, appVms);
 }

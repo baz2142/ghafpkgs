@@ -4,6 +4,7 @@
  */
 
 #include <GhafAudioControl/AppList.hpp>
+#include <GhafAudioControl/Backends/PulseAudio/SinkInput.hpp>
 #include <GhafAudioControl/widgets/AppVmWidget.hpp>
 
 #include <GhafAudioControl/utils/Logger.hpp>
@@ -36,6 +37,12 @@ std::optional<size_t> GetIndexByAppId(const Glib::RefPtr<Gio::ListStore<AppVmMod
 
 std::string GetAppNameFromSinkInput(const IAudioControlBackend::ISinkInput::Ptr& device)
 {
+    if (auto sinkInput = std::dynamic_pointer_cast<Backend::PulseAudio::SinkInput>(device))
+    {
+        if (const auto appVmName = sinkInput->getAppVmName())
+            return *appVmName;
+    }
+
     return "Other";
 }
 
@@ -68,6 +75,14 @@ AppList::AppList()
     m_listBox.set_selection_mode(Gtk::SelectionMode::SELECTION_SINGLE);
 
     pack_start(m_listBox, Gtk::PACK_EXPAND_WIDGET);
+}
+
+void AppList::addVm(std::string appVmName)
+{
+    if (const auto index = GetIndexByAppId(m_appsModel, appVmName))
+        return;
+
+    m_appsModel->append(AppVmModel::create(std::move(appVmName)));
 }
 
 void AppList::addDevice(IAudioControlBackend::ISinkInput::Ptr device)

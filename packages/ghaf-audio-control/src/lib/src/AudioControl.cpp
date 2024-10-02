@@ -64,10 +64,13 @@ void OnPulseDeviceChanged(IAudioControlBackend::EventType eventType, IndexT inde
     }
 }
 
-AudioControl::AudioControl(std::unique_ptr<IAudioControlBackend> backend)
+AudioControl::AudioControl(std::unique_ptr<IAudioControlBackend> backend, const std::vector<std::string>& appVmsList)
     : Gtk::Box(Gtk::ORIENTATION_HORIZONTAL)
     , m_audioControl(std::move(backend))
 {
+    for (const auto& appVm : appVmsList)
+        m_appList.addVm(appVm);
+
     init();
 }
 

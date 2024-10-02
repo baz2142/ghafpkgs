@@ -22,6 +22,7 @@ class AppList final : public Gtk::Box
 public:
     AppList();
 
+    void addVm(std::string appVmName);
     void addDevice(IAudioControlBackend::ISinkInput::Ptr device);
 
     void removeAllApps();
